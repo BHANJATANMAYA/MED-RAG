@@ -1,6 +1,10 @@
-from sentence_transformers import SentenceTransformer
+import os
+from google import genai
+from dotenv import load_dotenv
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+load_dotenv()
+
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 async def embed_content(clean_data):
 
@@ -8,14 +12,21 @@ async def embed_content(clean_data):
 
     for item in clean_data:
 
-        text = item["content"]
+        text = item["content"].strip()
 
-        vector = model.encode(text).tolist()
+        # 🚨 Skip empty content
+        if not text:
+            continue
+
+        response = gemini_client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=text
+        )
 
         embeddings.append({
             "url": item["url"],
             "content": text,
-            "embedding": vector
+            "embedding": response.embeddings[0].values
         })
 
     return embeddings
