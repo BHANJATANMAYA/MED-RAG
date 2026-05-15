@@ -21,6 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "MED-RAG API Server is running"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 class QueryRequest(BaseModel):
     query: str
 
